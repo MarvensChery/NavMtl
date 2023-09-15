@@ -16,15 +16,15 @@ router.post("/token/", async (request, response) => {
     try {
         const {
             email,
-            password,
+            mdp,
         } = request.body;
 
-        if (!email || !password) {
+        if (!email || !mdp) {
             return response.status(400)
                 .json({ message: "email et password doivent être dans le body." });
         }
         // 2. Est-ce que l'utilisateur existe?
-        const user = await db("user")
+        const user = await db("utilisateur")
             .where("email", email)
             .first();
         if (!user) {
@@ -33,7 +33,7 @@ router.post("/token/", async (request, response) => {
         }
 
         // 3. Est-ce que c'est le bon mot de passe?
-        const result = await bcrypt.compare(password, user.password);
+        const result = await bcrypt.compare(mdp, user.mdp);
         if (!result) {
             return response.status(401)
                 .json({ message: "Login invalide." });

@@ -27,7 +27,7 @@ module.exports = async function authMiddleware(request, response, next) {
         }
 
         // vérifier que l'utilisateur à qui ce jeton a été émis existe toujours
-        const user = await db("user").where("userId", request.user.userId).first();
+        const user = await db("utilisateur").where("userId", request.user.userId).first();
         if (!user) {
             return response.status(404)
                 .json({ message: "Not authorized. L'utilisateur n'existe plus." });

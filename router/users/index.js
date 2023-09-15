@@ -9,7 +9,7 @@ const router = express.Router();
  */
 router.get("/", async (request, response) => {
     try {
-        const user = await db("user");
+        const user = await db("utilisateur");
         if (!user) {
             return response.status(404)
                 .json({ message: "Utilisateur inconnu." });
