@@ -11,14 +11,15 @@ const router = express.Router();
 
 router.get("/", async (request, response) => {
     try {
-        const history = await db("history");
+        const history = await db("history")
+        .where("userID", request.user.userID);
         if (!history) {
             return response.status(404)
                 .json({ message: "Aucun history" });
         }
         const data = history.map((e) => ({
-            historyID: e.userID,
-            addresse: e.email,
+            historyID: e.historyID,
+            addresse: e.addresse,
         }));
         return response.status(200)
             .json(data);
@@ -32,19 +33,13 @@ router.get("/", async (request, response) => {
 router.post("/", authMiddleware, async (request, response) => {
     try {
         const userID = request.user.userID;
-        const { addresse } = request.body;
-        const history = await db("history")
-            .where("userID", userID)
-            .andWhere("addresse", addresse)
-            .first();
-        if (history) {
-            return response.status(400)
-                .json({ message: "history déjà existant." });
-        }
+        const { addresse, temps } = request.body;
+         console.log(userID);
         const newHistory = await db("history")
             .insert({
                 userID,
                 addresse,
+                temps
             });
             if (!newHistory) {
                 return response.status(400)
