@@ -7,18 +7,6 @@ const router = express.Router();
 
 const secret = "dgjkgevuyetggvdghdfhegchgjdg,dvbmdghkdvghmdvhmshmg";
 
-/*
-** pour Test
-{
-  "nom": "nom",
-  "prenom": "prenom",
-  "email": "email.smith@email.com",
-  "mdp": "mdpsecret123",
-  "number": 5149996666
-}
-** http://localhost:3000/inscription
-*/
-
 // Route pour créer un nouvel utilisateur
 router.post("/", async (request, response) => {
     try {
@@ -28,7 +16,6 @@ router.post("/", async (request, response) => {
             email,
             mdp,
             number,
-        
         } = request.body;
 
         // Vérifier si l'utilisateur existe déjà avec le même email
@@ -61,10 +48,10 @@ router.post("/", async (request, response) => {
 
         // définir les informations à encoder dans le jeton
         const claims = {
-            userId: newUser[0].userId,
+            userID: newUser[0].userID,
             email: newUser[0].email,
         };
-
+              console.log(claims);
         // Créer le token pour le nouvel utilisateur
         const token = jwt.sign(claims, secret);
 

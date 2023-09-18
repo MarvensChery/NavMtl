@@ -15,7 +15,7 @@ router.get("/", async (request, response) => {
                 .json({ message: "Utilisateur inconnu." });
         }
         const users = user.map((u) => ({
-            userId: u.userId,
+            userID: u.userID,
             email: u.email,
         }));
         return response.status(200)

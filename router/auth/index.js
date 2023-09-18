@@ -41,7 +41,7 @@ router.post("/token/", async (request, response) => {
 
         // définir les informations à encoder dans le jeton
         const claims = {
-            userId: user.userId,
+            userID: user.userID,
             email: user.email,
         };
 
@@ -49,7 +49,7 @@ router.post("/token/", async (request, response) => {
         const token = jwt.sign(claims, secret);
 
         return response.status(200)
-            .json({ token });
+            .json({ token , claims });
     } catch (e) {
         return response.status(400).json({ message: e.message });
     }

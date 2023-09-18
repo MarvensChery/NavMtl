@@ -25,9 +25,8 @@ module.exports = async function authMiddleware(request, response, next) {
         } catch (e) {
             throw new Error(`Bearer malformed: ${authorization}`);
         }
-
         // vérifier que l'utilisateur à qui ce jeton a été émis existe toujours
-        const user = await db("utilisateur").where("userId", request.user.userId).first();
+        const user = await db("utilisateur").where("userID", request.user.userID).first();
         if (!user) {
             return response.status(404)
                 .json({ message: "Not authorized. L'utilisateur n'existe plus." });
