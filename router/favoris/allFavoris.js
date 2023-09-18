@@ -9,17 +9,19 @@ const router = express.Router();
  */
 router.get("/", async (request, response) => {
     try {
-        const user = await db("favoris");
-        if (!user) {
+        const favoris = await db("favoris");
+        if (!favoris) {
             return response.status(404)
                 .json({ message: "Aucun Favoris" });
         }
-        const users = user.map((u) => ({
-            userID: u.userID,
-            email: u.email,
+        const favori = favoris.map((f) => ({
+            favorisID: f.favorisID,
+            userID: f.userID,
+            titre: f.titre,
+            addresse: f.addresse
         }));
         return response.status(200)
-            .json(users);
+            .json(favori);
     } catch (e) {
         console.log(e.message);
         return response.status(400)
