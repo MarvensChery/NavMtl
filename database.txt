@@ -1,0 +1,85 @@
+-- Table utilisateur avec userID auto-généré
+CREATE TABLE utilisateur (
+    userID INT IDENTITY(1,1) PRIMARY KEY,
+    nom VARCHAR(255) NOT NULL,
+    prenom VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    mdp VARCHAR(255) NOT NULL,
+    number INT NOT NULL,
+    pfp varbinary(max) NULL,
+    lat VARCHAR(255) NULL,
+    long VARCHAR(255) NULL
+);
+
+-- Table favoris avec favorisID auto-généré
+CREATE TABLE favoris (
+    favorisID INT IDENTITY(1,1) PRIMARY KEY,
+    userID INT NOT NULL,
+    titre VARCHAR(255) NULL,
+    addresse VARCHAR(255) NOT NULL,
+    FOREIGN KEY (userID) REFERENCES utilisateur(userID)
+);
+
+-- Table history avec historyID auto-généré
+CREATE TABLE history (
+    historyID INT IDENTITY(1,1) PRIMARY KEY,
+    userID INT NOT NULL,
+    temps DATETIME NOT NULL,
+    addresse VARCHAR(255) NOT NULL,
+    FOREIGN KEY (userID) REFERENCES utilisateur(userID)
+);
+
+-- Table parametre avec parametreID auto-généré
+CREATE TABLE parametre (
+    parametreID INT IDENTITY(1,1) PRIMARY KEY,
+    userID INT NOT NULL,
+    parametre VARCHAR(255) NOT NULL,
+    valeur VARCHAR(255) NOT NULL,
+    FOREIGN KEY (userID) REFERENCES utilisateur(userID)
+);
+
+-- Table alerte avec alerteID auto-généré
+CREATE TABLE alerte (
+    alerteID INT IDENTITY(1,1) PRIMARY KEY,
+    userID INT NOT NULL,
+    contenu VARCHAR(255) NOT NULL,
+    temps DATETIME NOT NULL,
+    lu BIT NOT NULL,
+    FOREIGN KEY (userID) REFERENCES utilisateur(userID)
+);
+
+-- Table friend avec friendID auto-généré
+CREATE TABLE friend (
+    friendID INT IDENTITY(1,1) PRIMARY KEY,
+    userID INT NOT NULL,
+    lat VARCHAR(255) NULL,
+    long VARCHAR(255) NULL,
+    nom VARCHAR(255) NOT NULL,
+    prenom VARCHAR(255) NOT NULL,
+    FOREIGN KEY (userID) REFERENCES utilisateur(userID)
+);
+
+-- Table panneau avec panneauID auto-généré
+CREATE TABLE panneau (
+    panneauID INT IDENTITY(1,1) PRIMARY KEY,
+    desc_rpa VARCHAR(255) NOT NULL,
+    lat VARCHAR(255) NOT NULL,
+    long VARCHAR(255) NOT NULL
+);
+
+
+
+ CREATE LOGIN abdel   
+    WITH PASSWORD = '1234mdp';  
+GO 
+CREATE USER abdel FOR LOGIN abdel;
+select * from utilisateur
+
+
+-- Insérer le deuxième utilisateur
+INSERT INTO utilisateur ( nom, prenom, email, mdp, number, pfp, lat, long)
+VALUES ( 'Smith', 'Alice', 'alice.smith@email.com', 'motdepasse2', 987654321, NULL, '40.712776', '-74.005974');
+
+-- Insérer le troisième utilisateur
+INSERT INTO utilisateur (userID, nom, prenom, email, mdp, number, pfp, lat, long)
+VALUES (3, 'Johnson', 'Bob', 'bob.johnson@email.com', 'motdepasse3', 555555555, NULL, '51.509865', '-0.118092');
