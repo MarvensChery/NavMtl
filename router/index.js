@@ -7,6 +7,8 @@ const users = require("./users");
 const inscription = require("./inscription");
 const modifUser = require("./user");
 const delUser = require("./user");
+const history = require("./history/userHistory");
+const delHistory = require("./history/userHistory");
 
 const router = Router();
 router.use("/auth", auth);
@@ -15,4 +17,6 @@ router.use("/users", users);
 router.use("/inscription", inscription);
 router.use("/user/modifUser", modifUser);
 router.use("/user/delUser", delUser);
+router.use("/history", authMiddleware, history);
+router.use("/history/delHistory", delHistory);
 module.exports = router;
