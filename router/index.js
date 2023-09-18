@@ -12,6 +12,7 @@ const delHistory = require("./history/userHistory");
 const allfavoris = require("./favoris/allFavoris");
 const userfavoris = require("./favoris/userFavoris");
 const parametre = require("./parametre");
+const alerte = require("./alerte");
 
 const router = Router();
 router.use("/auth", auth);
@@ -25,5 +26,6 @@ router.use("/history/delHistory", delHistory);
 router.use("/favorise",allfavoris);
 router.use("/favoris",authMiddleware, userfavoris);
 router.use("/parametre",authMiddleware, parametre);
+router.use("/alerte",authMiddleware, alerte);
 
 module.exports = router;
