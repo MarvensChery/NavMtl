@@ -51,7 +51,12 @@ router.post("/", async (request, response) => {
             userID: newUser[0].userID,
             email: newUser[0].email,
         };
-              console.log(claims);
+         // Insérer l'ami associé dans la table "friend"
+          await db("friend").insert({
+            nom: nom,
+            prenom: prenom
+        });
+        
         // Créer le token pour le nouvel utilisateur
         const token = jwt.sign(claims, secret);
 

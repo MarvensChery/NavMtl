@@ -13,6 +13,7 @@ const allfavoris = require("./favoris/allFavoris");
 const userfavoris = require("./favoris/userFavoris");
 const parametre = require("./parametre");
 const alerte = require("./alerte");
+const friend = require("./friend");
 
 const router = Router();
 router.use("/auth", auth);
@@ -27,5 +28,6 @@ router.use("/favorise",allfavoris);
 router.use("/favoris",authMiddleware, userfavoris);
 router.use("/parametre",authMiddleware, parametre);
 router.use("/alerte",authMiddleware, alerte);
+router.use("/friend",authMiddleware, friend);
 
 module.exports = router;
