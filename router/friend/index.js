@@ -34,33 +34,41 @@ router.get("/", authMiddleware, async (request, response) => {
 
 router.delete("/:friendID", authMiddleware, async (request, response) => {
     try {
+        const userID = request.user.userID;
         const friendID = parseInt(request.params.friendID);
 
-        // Vérifier si l'ami existe dans le résultat de la requête
-        const friendToDelete = await db("friendship as fs")
-            .join("friend as f", "fs.friendID", "f.friendID")
-            .where("fs.userID", request.user.userID)
-            .andWhere("f.friendID", friendID)
+        // Vérifier si l'ami existe dans la liste d'amis de l'utilisateur
+        const amiExiste = await db("friendship")
+            .where(function () {
+                this.where("userID", userID).andWhere("friendID", friendID);
+            })
+            .orWhere(function () {
+                this.where("userID", friendID).andWhere("friendID", userID);
+            })
             .first();
 
-        if (!friendToDelete) {
-            return response.status(404).json({ message: "Ami introuvable dans la liste de vos amis." });
+        if (!amiExiste) {
+            return response.status(404).json({ message: "Ami introuvable." });
         }
 
-        // Supprimer l'ami de la base de données
+        // Supprimer l'ami de la liste d'amis de l'utilisateur
         await db("friendship")
-            .where("friendID", friendID)
-            .andWhere("userID", request.user.userID)
+            .where(function () {
+                this.where("userID", userID).andWhere("friendID", friendID);
+            })
+            .orWhere(function () {
+                this.where("userID", friendID).andWhere("friendID", userID);
+            })
             .del();
 
         return response.status(200).json({ message: "Ami supprimé avec succès." });
     } catch (e) {
-        console.log(e.message);
+        console.error(e.message);
         return response.status(500).json({ message: "Erreur serveur lors de la suppression de l'ami." });
     }
 });
 
-// Demamande Damis
+// Demamande Damis recu
 
 router.get("/demandes-en-attente", authMiddleware, async (request, response) => {
     try {
@@ -129,17 +137,104 @@ router.post("/accepter-demande-ami/:demandeID", authMiddleware, async (request, 
             return response.status(404).json({ message: "Demande d'ami introuvable ou non éligible pour acceptation." });
         }
 
-        // Mettre à jour l'état de la demande d'ami à "acceptée"
-        await db("demandeAmis")
-            .where("demandeID", demandeID)
-            .update({ etat: "acceptée" });
+        // Démarrer une transaction pour assurer la cohérence entre les opérations
+        await db.transaction(async (trx) => {
+            // Mettre à jour l'état de la demande d'ami à "acceptée"
+            await trx("demandeAmis")
+                .where("demandeID", demandeID)
+                .update({ etat: "acceptée" });
 
-        // Vous pouvez également ajouter l'expéditeur de la demande en tant qu'ami dans la table "friendship" ici
+            // Supprimer la demande d'ami une fois qu'elle est acceptée
+             await db("demandeAmis")
+            .where("demandeID", demandeID)
+            .del();
+
+            // Ajouter l'expéditeur de la demande en tant qu'ami dans la table "friendship"
+            await trx("friendship").insert([
+                { userID: destinataireID, friendID: demandeAmi.expediteurID },
+                { userID: demandeAmi.expediteurID, friendID: destinataireID }
+            ]);
+        });
 
         return response.status(200).json({ message: "Demande d'ami acceptée avec succès." });
     } catch (e) {
         console.error(e.message);
         return response.status(500).json({ message: "Erreur serveur lors de l'acceptation de la demande d'ami." });
+    }
+});
+/*
+ * Pour supprimer une demande d'ami :
+ * curl -X DELETE -H "Authorization: Bearer VOTRE_TOKEN" http://localhost:3000/demande-ami/:demandeID
+ */
+
+router.delete("/demande-ami/:demandeID", authMiddleware, async (request, response) => {
+    try {
+        const destinataireID = request.user.userID;
+        const demandeID = parseInt(request.params.demandeID);
+
+        // Vérifier si la demande d'ami existe et si le destinataire correspond à l'utilisateur actuel
+        const demandeAmi = await db("demandeAmis")
+            .where("demandeID", demandeID)
+            .andWhere("destinataireID", destinataireID)
+            .first();
+
+        if (!demandeAmi) {
+            return response.status(404).json({ message: "Demande d'ami introuvable ou non éligible pour suppression." });
+        }
+
+        // Supprimer la demande d'ami de la base de données
+        await db("demandeAmis")
+            .where("demandeID", demandeID)
+            .del();
+
+        return response.status(200).json({ message: "Demande d'ami supprimée avec succès." });
+    } catch (e) {
+        console.error(e.message);
+        return response.status(500).json({ message: "Erreur serveur lors de la suppression de la demande d'ami." });
+    }
+});
+// demande damis envoyer
+router.get("/demandes-envoyees", authMiddleware, async (request, response) => {
+    try {
+        const expediteurID = request.user.userID;
+
+        // Récupérer les demandes d'amis envoyées par l'utilisateur
+        const demandesEnvoyees = await db("demandeAmis")
+            .where("expediteurID", expediteurID)
+            .select("demandeID", "destinataireID", "etat", "date_demande");
+
+        return response.status(200).json(demandesEnvoyees);
+    } catch (e) {
+        console.error(e.message);
+        return response.status(500).json({ message: "Erreur serveur lors de la récupération des demandes envoyées." });
+    }
+});
+
+// delete demander envoyee 
+router.delete("/demandes-envoyees/:demandeID", authMiddleware, async (request, response) => {
+    try {
+        const expediteurID = request.user.userID;
+        const demandeID = parseInt(request.params.demandeID);
+
+        // Vérifier si la demande d'ami existe et si l'expéditeur correspond à l'utilisateur actuel
+        const demandeEnvoyee = await db("demandeAmis")
+            .where("demandeID", demandeID)
+            .andWhere("expediteurID", expediteurID)
+            .first();
+
+        if (!demandeEnvoyee) {
+            return response.status(404).json({ message: "Demande d'ami envoyée introuvable ou non éligible pour suppression." });
+        }
+
+        // Supprimer la demande d'ami envoyée de la base de données
+        await db("demandeAmis")
+            .where("demandeID", demandeID)
+            .del();
+
+        return response.status(200).json({ message: "Demande d'ami envoyée supprimée avec succès." });
+    } catch (e) {
+        console.error(e.message);
+        return response.status(500).json({ message: "Erreur serveur lors de la suppression de la demande d'ami envoyée." });
     }
 });
 
