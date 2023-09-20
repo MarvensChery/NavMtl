@@ -2,14 +2,27 @@ const express = require("express");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const db = require("../../modules/db");
+const {check, validationResult} = require("express-validator");
 
 const router = express.Router();
 
 const secret = "dgjkgevuyetggvdghdfhegchgjdg,dvbmdghkdvghmdvhmshmg";
 
+const userValidationRules = [
+    check("nom").not().isEmpty().isLength({ min: 2, max: 25 }),
+    check("prenom").not().isEmpty().isLength({ min: 2, max: 25 }),
+    check("email").isEmail(),
+    check("mdp").isLength({ min: 6 }),
+    check("number").isLength({ min: 10, max: 10 }),
+];
 // Route pour créer un nouvel utilisateur
-router.post("/", async (request, response) => {
+router.post("/", userValidationRules, async (request, response) => {
     try {
+        const errors = validationResult(request);
+        if (!errors.isEmpty()) {
+            return response.status(400).json({ errors: errors.array() });
+        }
+
         const {
             nom,
             prenom,
