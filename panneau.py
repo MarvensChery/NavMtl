@@ -19,49 +19,39 @@ def convertir_date(date_str):
 
 def verifier_panneau(description_rpa):
     if "EN TOUT TEMPS" in description_rpa:
-        return "Vous n'avez pas le droit de vous garer en tout temps."
+        # Exemple de description RPA : "Stationnement interdit en tout temps"
+        return True
 
-    if re.match(r'\\P \d{1,2}h-\d{1,2}h [A-ZÉ]+', description_rpa):
-        return "Vous avez le droit de vous garer."
-
-    if re.match(r'\\P RESERVE TAXIS', description_rpa):
-        return "Vous avez le droit de vous garer pour les taxis."
-
-    if re.match(r'\\P LIVRAISON SEULEMENT \d{1,2}h-\d{1,2}h [A-ZÉ]+ AU [A-ZÉ]+', description_rpa):
-        return "Vous avez le droit de vous garer pour la livraison pendant les heures spécifiées."
-
-    if re.match(r'\\P \d{1,2}h\d{1,2}-\d{1,2}h\d{1,2} [A-ZÉ]+', description_rpa):
-        return "Vous avez le droit de vous garer pendant les heures spécifiées."
-
-    if re.match(r'\\A \d{1,2}h-\d{1,2}h\d{1,2} LUN\. AU VEN.', description_rpa):
-        return "Vous avez le droit de vous garer pendant les heures spécifiées du lundi au vendredi."
-
-    if re.match(r'P \d+ min \d{1,2}h-\d{1,2}h [A-ZÉ]+', description_rpa):
-        return "Vous avez le droit de vous garer pour une durée limitée pendant les heures spécifiées."
-
-    if re.match(r'\\P RESERVE S3R \d{1,2}h-\d{1,2}h', description_rpa):
-        return "Vous avez le droit de vous garer dans la zone réservée S3R pendant les heures spécifiées."
+    if "RESERVE TAXIS" in description_rpa:
+        # Exemple de description RPA : "RESERVE TAXIS"
+        return True
 
     if "LIVRAISON SEULEMENT" in description_rpa:
-        return "Vous avez le droit de vous garer pour la livraison pendant les heures spécifiées."
+        # Exemple de description RPA : "LIVRAISON SEULEMENT"
+        return True
 
     if "PARCOMETRE" in description_rpa:
-        return "Vous devez payer au parcomètre pour vous garer."
+        # Exemple de description RPA : "PARCOMETRE"
+        return True
 
     if "ZONE DE REMORQUAGE" in description_rpa:
-        return "Il s'agit d'une zone de remorquage, le stationnement est interdit."
-
-    if re.match(r'\\A \d{1,2}h-\d{1,2}h\d{1,2} LUN\. AU VEN.', description_rpa):
-        return "Vous avez le droit de vous garer pendant les heures spécifiées du lundi au vendredi."
+        # Exemple de description RPA : "ZONE DE REMORQUAGE"
+        return True
 
     if "EXCEPTE VEHICULES MUNIS D'UN PERMIS" in description_rpa:
-        return "Sauf véhicules munis d'un permis, le stationnement est interdit."
+        # Exemple de description RPA : "EXCEPTE VEHICULES MUNIS D'UN PERMIS"
+        return True
 
     if "RESERVE MOTOS" in description_rpa:
-        return "Le stationnement est réservé aux motos."
+        # Exemple de description RPA : "RESERVE MOTOS"
+        return "MOTOS"
 
     if "RESERVE TITULAIRES DE PERMIS" in description_rpa:
-        return "Le stationnement est réservé aux titulaires de permis."
+        # Exemple de description RPA : "RESERVE TITULAIRES DE PERMIS"
+        return "PERMIS"
+    
+            
+
 
     # Ajoutez ici d'autres conditions pour traiter les nouvelles descriptions RPA
 
@@ -69,7 +59,7 @@ def verifier_panneau(description_rpa):
 
 # Fonction pour récupérer les descriptions RPA depuis l'API avec les coordonnées
 def recuperer_descriptions_rpa_avec_coordonnees():
-    url = "https://donnees.montreal.ca/api/3/action/datastore_search?resource_id=7f1d4ae9-1a12-46d7-953e-6b9c18c78680&limit=1000000"
+    url = "https://donnees.montreal.ca/api/3/action/datastore_search?resource_id=7f1d4ae9-1a12-46d7-953e-6b9c18c78680&limit=1000"
     response = requests.get(url)
 
     if response.status_code == 200:
