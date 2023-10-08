@@ -15,6 +15,7 @@ const parametre = require("./parametre");
 const alerte = require("./alerte");
 const friend = require("./friend");
 const pythonRoute = require("./panneau/pythonRoute");
+
 const router = Router();
 router.use("/auth", auth);
 router.use("/user", authMiddleware, user);
@@ -29,6 +30,6 @@ router.use("/favoris",authMiddleware, userfavoris);
 router.use("/parametre",authMiddleware, parametre);
 router.use("/alerte",authMiddleware, alerte);
 router.use("/friend",authMiddleware, friend);
-router.use("/", pythonRoute);
+router.use("/panneau", pythonRoute);
 
 module.exports = router;

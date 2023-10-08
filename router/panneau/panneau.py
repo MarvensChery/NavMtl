@@ -55,7 +55,7 @@ def verifier_panneau(description_rpa):
 
     # Ajoutez ici d'autres conditions pour traiter les nouvelles descriptions RPA
 
-    return "Description RPA non traitée : " + description_rpa  # Si aucune condition ne correspond
+    return "Description RPA non traitee : " + description_rpa  # Si aucune condition ne correspond
 
 # Fonction pour récupérer les descriptions RPA depuis l'API avec les coordonnées
 def recuperer_descriptions_rpa_avec_coordonnees():
@@ -84,21 +84,11 @@ def recuperer_descriptions_rpa_avec_coordonnees():
                     'Coordonnees': coordonnees
                 })
 
-        return descriptions_coordonnees
+        print(descriptions_coordonnees)
     else:
         print(f"La demande a échoué avec le code d'état {response.status_code}")
         return []
 
 
-# Configuration de Flask
-app = Flask(__name__)
-
-# Route pour obtenir les descriptions RPA avec coordonnées
-@app.route('/api/descriptions_rpa_avec_coordonnees', methods=['GET'])
-def get_descriptions_rpa_avec_coordonnees():
-    descriptions = recuperer_descriptions_rpa_avec_coordonnees()
-    return jsonify(descriptions)
-
-if __name__ == '__main__':
-    app.run(debug=True)
+recuperer_descriptions_rpa_avec_coordonnees()
 
