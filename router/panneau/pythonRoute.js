@@ -6,7 +6,7 @@ const { spawn } = require("child_process");
 router.get("/", async (req, res) => {
   try {
     // Exécutez le script Python en tant que sous-processus
-    const pythonProcess = spawn("python", ["router/panneau/panneau.py"]);
+    const pythonProcess = spawn("python", ["./panneau.py"]);
 
     // Créez une promesse pour attendre que le processus Python se termine
     const promise = new Promise((resolve, reject) => {
