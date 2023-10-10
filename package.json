@@ -10,6 +10,7 @@
     "author": "you",
     "license": "ISC",
     "dependencies": {
+        "axios": "^1.5.1",
         "bcrypt": "^5.1.1",
         "body-parser": "^1.20.2",
         "cors": "^2.8.5",
@@ -18,7 +19,8 @@
         "express-validator": "^7.0.1",
         "jsonwebtoken": "9.0.2",
         "knex": "2.5.1",
-        "mssql": "^10.0.0"
+        "mssql": "^10.0.0",
+        "os-locale": "^6.0.2"
     },
     "devDependencies": {
         "eslint": "^8.49.0",
