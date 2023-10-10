@@ -70,9 +70,8 @@ def recuperer_descriptions_rpa_avec_coordonnees():
         for record in records:
             description_rpa = record.get('DESCRIPTION_RPA')
             resultat_verif = verifier_panneau(description_rpa)
-            description_rep = record.get('DESCRIPTION_REP')  # Récupérez la valeur de DESCRIPTION_REP
+            description_rep = record.get('DESCRIPTION_REP')
 
-            # Ajoutez une condition pour exclure les panneaux ayant DESCRIPTION_REP égal à "Enlevé"
             if description_rep != "Enlevé":
                 coordonnees = {
                     'Latitude': record.get('Latitude'),
@@ -84,11 +83,22 @@ def recuperer_descriptions_rpa_avec_coordonnees():
                     'Coordonnees': coordonnees
                 })
 
-        print(descriptions_coordonnees)
+        return descriptions_coordonnees  # Retourne la liste complète
     else:
         print(f"La demande a échoué avec le code d'état {response.status_code}")
-        return []
+        return []  # Retourne une liste vide en cas d'échec
 
 
-recuperer_descriptions_rpa_avec_coordonnees()
 
+# Configuration de Flask 
+app = Flask(__name__) 
+ 
+# Route pour obtenir les descriptions RPA avec coordonnées 
+@app.route('/api/descriptions_rpa_avec_coordonnees', methods=['GET']) 
+def get_descriptions_rpa_avec_coordonnees(): 
+    descriptions = recuperer_descriptions_rpa_avec_coordonnees() 
+    print(descriptions)
+    return jsonify(descriptions) 
+ 
+if __name__ == '__main__': 
+    app.run(debug=True) 
