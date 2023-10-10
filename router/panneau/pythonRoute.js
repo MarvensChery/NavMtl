@@ -72,7 +72,7 @@ function verifierPanneau(descriptionRpa) {
 
 // Fonction pour récupérer les descriptions RPA depuis l'API avec les coordonnées
 async function recupererDescriptionsRpaAvecCoordonnees() {
-    const url = "https://donnees.montreal.ca/api/3/action/datastore_search?resource_id=7f1d4ae9-1a12-46d7-953e-6b9c18c78680&limit=1000";
+    const url = "https://donnees.montreal.ca/api/3/action/datastore_search?resource_id=7f1d4ae9-1a12-46d7-953e-6b9c18c78680&limit=1000000";
     try {
         const response = await axios.get(url);
         const data = response.data;
