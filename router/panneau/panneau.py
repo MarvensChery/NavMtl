@@ -1,65 +1,136 @@
-from flask import Flask, jsonify
-import requests
-import re
-import datetime
+import spacy
+from datetime import datetime
 import locale
+import re
+import requests
 
-locale.setlocale(locale.LC_TIME, 'fr_FR.utf8')
+locale.setlocale(locale.LC_TIME, 'fr_FR.UTF-8')
+nlp = spacy.load('fr_core_news_sm')
 
-def convertir_date(date_str):
-    mois_mapping = {
-        'JAN': 1, 'FEV': 2, 'MARS': 3, 'AVRIL': 4,
-        'MAI': 5, 'JUN': 6, 'JUL': 7, 'AUT': 8,
-        'SEP': 9, 'OCT': 10, 'NOV': 11, 'DEC': 12
-    }
-    jour, mois_abbr = date_str.split()
-    mois = mois_mapping.get(mois_abbr.upper(), 1)
-    annee = datetime.datetime.now().year
-    return datetime.datetime(annee, mois, int(jour))
+def verifier_panneau(description):
+    # Obtenez le jour actuel et l'heure actuelle
 
-def verifier_panneau(description_rpa):
-    if "EN TOUT TEMPS" in description_rpa:
-        # Exemple de description RPA : "Stationnement interdit en tout temps"
-        return True
+    description = description.lower()
 
-    if "RESERVE TAXIS" in description_rpa:
-        # Exemple de description RPA : "RESERVE TAXIS"
-        return True
+    keywords_true = [
+        "en tout temps",
+        "reserve taxis",
+        "livraison seulement",
+        "parcometre",
+        "zone de remorquage",
+        "excepte vehicules munis d'un permis"
+    ]
 
-    if "LIVRAISON SEULEMENT" in description_rpa:
-        # Exemple de description RPA : "LIVRAISON SEULEMENT"
-        return True
+    for keyword in keywords_true:
+        if keyword in description:
+            return True
 
-    if "PARCOMETRE" in description_rpa:
-        # Exemple de description RPA : "PARCOMETRE"
-        return True
-
-    if "ZONE DE REMORQUAGE" in description_rpa:
-        # Exemple de description RPA : "ZONE DE REMORQUAGE"
-        return True
-
-    if "EXCEPTE VEHICULES MUNIS D'UN PERMIS" in description_rpa:
-        # Exemple de description RPA : "EXCEPTE VEHICULES MUNIS D'UN PERMIS"
-        return True
-
-    if "RESERVE MOTOS" in description_rpa:
-        # Exemple de description RPA : "RESERVE MOTOS"
+    if "reserve motos" in description:
         return "MOTOS"
 
-    if "RESERVE TITULAIRES DE PERMIS" in description_rpa:
-        # Exemple de description RPA : "RESERVE TITULAIRES DE PERMIS"
+    if "reserve titulaires de permis" in description:
         return "PERMIS"
+
+    now = datetime.now()
+    current_day = now.strftime("%A").lower()
+    current_hour = now.hour
+    current_minute = now.minute
+    current_month = now.month
+
+   
+    # Prétraitement du texte
+    description = description.lower()
+    doc = nlp(description)
     
-            
+    
+
+    # Vérifiez les mois
+    mois = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "sept", "octobre", "nov", "dec"]
+    current_month = now.strftime("%B").lower()  # Get the full month name in French
+
+    start_month = None
+    end_month = None
+
+    for token in doc:
+        if token.text.lower() in mois:
+            if start_month is None:
+                start_month = mois.index(token.text.lower())
+            else:
+                end_month = mois.index(token.text.lower())
+
+    # Si des mois sont détectés, vérifiez si le mois actuel est valide
+    if start_month is not None:
+        if end_month is None:
+            end_month = start_month
 
 
-    # Ajoutez ici d'autres conditions pour traiter les nouvelles descriptions RPA
+        if current_month not in mois[start_month:end_month+1]:
+            return False
+    
 
-    return "Description RPA non traitee : " + description_rpa  # Si aucune condition ne correspond
 
-# Fonction pour récupérer les descriptions RPA depuis l'API avec les coordonnées
+
+
+    # Vérifiez le jour
+    jours = ["lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi", "dimanche"]
+    jours_abbr = ["lun", "mar", "mer", "jeu", "ven", "sam", "dim"]  # Ajout de la version abrégée
+    start_day = None
+    end_day = None
+    for token in doc:
+        if token.text.lower() in jours:
+            if start_day is None:
+                start_day = jours.index(token.text.lower())
+            else:
+                end_day = jours.index(token.text.lower())
+    # Vérifiez les versions abrégées des jours
+        elif token.text.lower() in jours_abbr:
+            if start_day is None:
+                start_day = jours_abbr.index(token.text.lower())
+            else:
+                end_day = jours_abbr.index(token.text.lower())
+
+    if start_day is None:
+        return False
+
+    if end_day is None:
+        end_day = start_day
+
+
+    if current_day not in jours[start_day:end_day+1]:
+       return False
+
+    # Vérifiez l'heure
+    heures = []
+# Utilisation d'une expression régulière pour détecter les heures et les minutes
+    matches = re.findall(r'(\d{1,2}h\d{0,2})', description)
+    for match in matches:
+        heure_parties = match.split("h")
+        heures.extend(heure_parties)
+    #print("heures",heures)
+
+    start_hour = int(heures[0])
+    start_minute = int(heures[1]) if heures[1] else 0  # Handle empty string
+    end_hour = int(heures[2])
+    end_minute = int(heures[3]) if heures[3] else 0  # Handle empty string
+
+   #print(f"Heures detectees: {start_hour}:{start_minute} a {end_hour}:{end_minute}")  # Ajout pour le débogage
+
+    if start_hour <= current_hour <= end_hour:
+        if start_hour == current_hour and current_minute < start_minute:
+            #print("Il est trop tôt.")  # Ajout pour le débogage
+            return False
+        if end_hour == current_hour and current_minute > end_minute:
+            #print("Il est trop tard.")  # Ajout pour le débogage
+            return False
+        #print("L'heure actuelle est valide.")  # Ajout pour le débogage
+        return True
+    else:
+        #print("L'heure actuelle n'est pas valide.")  # Ajout pour le débogage
+        return False
+
+# Pour tester
 def recuperer_descriptions_rpa_avec_coordonnees():
-    url = "https://donnees.montreal.ca/api/3/action/datastore_search?resource_id=7f1d4ae9-1a12-46d7-953e-6b9c18c78680&limit=1000"
+    url = "https://donnees.montreal.ca/api/3/action/datastore_search?resource_id=7f1d4ae9-1a12-46d7-953e-6b9c18c78680&limit=50"
     response = requests.get(url)
 
     if response.status_code == 200:
@@ -69,10 +140,11 @@ def recuperer_descriptions_rpa_avec_coordonnees():
 
         for record in records:
             description_rpa = record.get('DESCRIPTION_RPA')
-            resultat_verif = verifier_panneau(description_rpa)
             description_rep = record.get('DESCRIPTION_REP')
 
-            if description_rep != "Enlevé":
+            if description_rep != "Enlevé":  # vérifier que le panneau n'est pas "Enlevé"
+                resultat_verif = verifier_panneau(description_rpa)  # Vérifier le panneau
+
                 coordonnees = {
                     'Latitude': record.get('Latitude'),
                     'Longitude': record.get('Longitude')
@@ -83,22 +155,8 @@ def recuperer_descriptions_rpa_avec_coordonnees():
                     'Coordonnees': coordonnees
                 })
 
-        return descriptions_coordonnees  # Retourne la liste complète
-    else:
-        print(f"La demande a échoué avec le code d'état {response.status_code}")
-        return []  # Retourne une liste vide en cas d'échec
+        return descriptions_coordonnees
 
 
-
-# Configuration de Flask 
-app = Flask(__name__) 
- 
-# Route pour obtenir les descriptions RPA avec coordonnées 
-@app.route('/api/descriptions_rpa_avec_coordonnees', methods=['GET']) 
-def get_descriptions_rpa_avec_coordonnees(): 
-    descriptions = recuperer_descriptions_rpa_avec_coordonnees() 
-    print(descriptions)
-    return jsonify(descriptions) 
- 
-if __name__ == '__main__': 
-    app.run(debug=True) 
+# Testez la fonction
+print(recuperer_descriptions_rpa_avec_coordonnees())
