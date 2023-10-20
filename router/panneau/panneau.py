@@ -113,7 +113,6 @@ def verifier_panneau(description):
     end_hour = int(heures[2])
     end_minute = int(heures[3]) if heures[3] else 0  # Handle empty string
 
-   #print(f"Heures detectees: {start_hour}:{start_minute} a {end_hour}:{end_minute}")  # Ajout pour le débogage
 
     if start_hour <= current_hour <= end_hour:
         if start_hour == current_hour and current_minute < start_minute:
