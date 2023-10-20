@@ -1,9 +1,13 @@
 const { Router } = require("express");
 const { spawn } = require("child_process");
+const path = require("path");
+const pythonFilePath = path.join(__dirname, "panneau", "panneau.py");
+console.log(pythonFilePath); // This will print the full path.
+
 
 function runPanneauScript() {
     return new Promise((resolve, reject) => {
-      const pythonProcess = spawn("python", ["router\\panneau\\panneau.py"]);
+        const pythonProcess = spawn("python", ["router/panneau/panneau.py"]);
       let dataString = "";
 
       pythonProcess.stdout.on("data", (data) => {
