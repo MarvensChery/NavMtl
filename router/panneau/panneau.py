@@ -129,7 +129,7 @@ def verifier_panneau(description):
 
 # Pour tester
 def recuperer_descriptions_rpa_avec_coordonnees():
-    url = "https://donnees.montreal.ca/api/3/action/datastore_search?resource_id=7f1d4ae9-1a12-46d7-953e-6b9c18c78680&limit=50"
+    url = "https://donnees.montreal.ca/api/3/action/datastore_search?resource_id=7f1d4ae9-1a12-46d7-953e-6b9c18c78680&limit=1000"
     response = requests.get(url)
 
     if response.status_code == 200:
