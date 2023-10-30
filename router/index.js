@@ -30,6 +30,11 @@ router.use("/favoris",authMiddleware, userfavoris);
 router.use("/parametre",authMiddleware, parametre);
 router.use("/alerte",authMiddleware, alerte);
 router.use("/friend",authMiddleware, friend);
+router.use("/demandes-envoyees",authMiddleware, friend);
+router.use("/demandes-en-attente",authMiddleware, friend);
+router.use("/demande-ami/:demandeID",authMiddleware, friend);
+router.use("/accepter-demande-ami/:demandeID",authMiddleware, friend);
+router.use("/:friendID",authMiddleware, friend);
 router.use("/panneau", pythonRoute);
 
 module.exports = router;
