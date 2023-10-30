@@ -18,7 +18,8 @@ def verifier_panneau(description):
         "livraison seulement",
         "parcometre",
         "zone de remorquage",
-        "excepte vehicules munis d'un permis"
+        "excepte vehicules munis d'un permis",
+        "deux cotes"
     ]
 
     for keyword in keywords_true:
