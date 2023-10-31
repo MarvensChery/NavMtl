@@ -108,6 +108,9 @@ def verifier_panneau(description):
         heure_parties = match.split("h")
         heures.extend(heure_parties)
     #print("heures",heures)
+     # Si aucune heure n'est trouvée, retournez True
+    if not heures:
+        return True
 
     start_hour = int(heures[0])
     start_minute = int(heures[1]) if heures[1] else 0  # Handle empty string
@@ -130,7 +133,7 @@ def verifier_panneau(description):
 
 # Pour tester
 def recuperer_descriptions_rpa_avec_coordonnees():
-    url = "https://donnees.montreal.ca/api/3/action/datastore_search?resource_id=7f1d4ae9-1a12-46d7-953e-6b9c18c78680&limit=1000"
+    url = "https://donnees.montreal.ca/api/3/action/datastore_search?resource_id=7f1d4ae9-1a12-46d7-953e-6b9c18c78680&limit=100000000"
     response = requests.get(url)
 
     if response.status_code == 200:
@@ -154,6 +157,7 @@ def recuperer_descriptions_rpa_avec_coordonnees():
                     'Resultat_Verification': resultat_verif,
                     'Coordonnees': coordonnees
                 })
+            
 
         return descriptions_coordonnees
 
