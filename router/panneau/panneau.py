@@ -3,6 +3,15 @@ from datetime import datetime
 import locale
 import re
 import requests
+import pandas as pd
+import numpy as np
+import json
+from math import radians, sin, cos, sqrt, atan2
+import sys
+
+# Récupérez les arguments de la ligne de commande
+lat = float(sys.argv[1])
+long = float(sys.argv[2])
 
 locale.setlocale(locale.LC_TIME, 'fr_FR.UTF-8')
 nlp = spacy.load('fr_core_news_sm')
@@ -132,35 +141,76 @@ def verifier_panneau(description):
         return False
 
 # Pour tester
-def recuperer_descriptions_rpa_avec_coordonnees():
-    url = "https://donnees.montreal.ca/api/3/action/datastore_search?resource_id=7f1d4ae9-1a12-46d7-953e-6b9c18c78680&limit=1000"
-    response = requests.get(url)
+def calculer_distance(lat1, lon1, lat2, lon2):
+    # Rayon de la Terre en m
+    R = 6371000
+    
+    # Convertir les coordonnées de degrés en radians
+    lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
+    
+    # Calculer les changements de coordonnées
+    dlat = lat2 - lat1
+    dlon = lon2 - lon1
+    
+    # Calculer la distance
+    a = sin(dlat / 2)**2 + cos(lat1) * cos(lat2) * sin(dlon / 2)**2
+    c = 2 * atan2(sqrt(a), sqrt(1 - a))
+    distance = R * c
+    
+    return distance
 
-    if response.status_code == 200:
-        data = response.json()
+def recuperer_descriptions_rpa_avec_coordonnees(lat_specifique, lon_specifique):
+    url = "https://donnees.montreal.ca/api/3/action/datastore_search"
+    params_total = {
+        "resource_id": "7f1d4ae9-1a12-46d7-953e-6b9c18c78680",
+        "limit": 1,
+        "fields": "DESCRIPTION_RPA",
+        "filters": json.dumps({
+            "DESCRIPTION_REP": "Réel",
+            "NOM_ARROND": "Ville-Marie"
+        })
+    }
+    response_total = requests.get(url, params=params_total)
+    total_results = response_total.json().get('result', {}).get('total', 0)
+
+    params_derniers = {
+        "resource_id": "7f1d4ae9-1a12-46d7-953e-6b9c18c78680",
+        "limit": 100000,
+        "fields": "DESCRIPTION_RPA, Latitude, Longitude",
+        "filters": json.dumps({
+            "DESCRIPTION_REP": "Réel",
+            "NOM_ARROND": "Ville-Marie"
+        })
+    }
+    response_derniers = requests.get(url, params=params_derniers)
+
+    if response_derniers.status_code == 200:
+        data = response_derniers.json()
         records = data.get('result', {}).get('records', [])
         descriptions_coordonnees = []
 
         for record in records:
-            description_rpa = record.get('DESCRIPTION_RPA')
-            description_rep = record.get('DESCRIPTION_REP')
+            lat_panneau = float(record.get('Latitude'))
+            lon_panneau = float(record.get('Longitude'))
+            distance = calculer_distance(lat_specifique, lon_specifique, lat_panneau, lon_panneau)
 
-            if description_rep != "Enlevé":  # vérifier que le panneau n'est pas "Enlevé"
+            if distance <= 1000:
+                description_rpa = record.get('DESCRIPTION_RPA')
                 resultat_verif = verifier_panneau(description_rpa)  # Vérifier le panneau
 
                 coordonnees = {
-                    'Latitude': record.get('Latitude'),
-                    'Longitude': record.get('Longitude')
-                }
+                    'Latitude': lat_panneau,
+                    'Longitude': lon_panneau
+                    }
                 descriptions_coordonnees.append({
                     'Description_RPA': description_rpa,
                     'Resultat_Verification': resultat_verif,
-                    'Coordonnees': coordonnees
+                    'Coordonnees': coordonnees,
+                    'Distance': distance
                 })
-            
 
-        return descriptions_coordonnees
+        print(descriptions_coordonnees)
 
-
-# Testez la fonction
-print(recuperer_descriptions_rpa_avec_coordonnees())
+# Testez la fonction avec les coordonnées spécifiques
+print(lat,long)
+recuperer_descriptions_rpa_avec_coordonnees(lat, long)

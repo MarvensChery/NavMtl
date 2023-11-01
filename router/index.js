@@ -5,23 +5,23 @@ const pythonFilePath = path.join(__dirname, "panneau", "panneau.py");
 console.log(pythonFilePath); // This will print the full path.
 
 
-function runPanneauScript() {
-    return new Promise((resolve, reject) => {
-        const pythonProcess = spawn("python", ["router/panneau/panneau.py"]);
+function runPanneauScript(lat, long) {
+  return new Promise((resolve, reject) => {
+      const pythonProcess = spawn("python", ["router/panneau/panneau.py", lat, long]);
       let dataString = "";
 
       pythonProcess.stdout.on("data", (data) => {
-        dataString += data.toString();
+          dataString += data.toString();
       });
 
       pythonProcess.stdout.on("end", () => {
-        resolve(dataString);
+          resolve(dataString);
       });
 
       pythonProcess.stderr.on("data", (error) => {
-        reject(error.toString());
+          reject(error.toString());
       });
-    });
+  });
 }
 
 
@@ -60,13 +60,19 @@ router.use("/alerte",authMiddleware, alerte);
 router.use("/friend",authMiddleware, friend);
 
 router.get("/panneau/run", async (req, res) => {
-    try {
-      const result = await runPanneauScript();
+  const { lat, long } = req.query;
+
+  if (!lat || !long) {
+      return res.status(400).send("Latitude and longitude are required");
+  }
+
+  try {
+      const result = await runPanneauScript(lat, long);
       res.send(result);
-    } catch (error) {
+  } catch (error) {
       res.status(500).send(error);
-    }
-  });
+  }
+});
   router.use("/demandes-envoyees",authMiddleware, friend);
   router.use("/demandes-en-attente",authMiddleware, friend);
   router.use("/demande-ami/:demandeID",authMiddleware, friend);
