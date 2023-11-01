@@ -203,8 +203,7 @@ def recuperer_descriptions_rpa_avec_coordonnees(lat_specifique, lon_specifique):
                 descriptions_coordonnees.append({
                     'Description_RPA': description_rpa,
                     'Resultat_Verification': resultat_verif,
-                    'Coordonnees': coordonnees,
-                    'Distance': distance
+                    'Coordonnees': coordonnees
                 })
 
         print(descriptions_coordonnees)
