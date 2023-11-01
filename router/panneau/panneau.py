@@ -3,8 +3,6 @@ from datetime import datetime
 import locale
 import re
 import requests
-import pandas as pd
-import numpy as np
 import json
 from math import radians, sin, cos, sqrt, atan2
 import sys
