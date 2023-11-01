@@ -209,5 +209,4 @@ def recuperer_descriptions_rpa_avec_coordonnees(lat_specifique, lon_specifique):
         print(descriptions_coordonnees)
 
 # Testez la fonction avec les coordonnées spécifiques
-print(lat,long)
 recuperer_descriptions_rpa_avec_coordonnees(lat, long)
