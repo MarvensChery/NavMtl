@@ -173,7 +173,7 @@ def recuperer_descriptions_rpa_avec_coordonnees(lat_specifique, lon_specifique):
 
     params_derniers = {
         "resource_id": "7f1d4ae9-1a12-46d7-953e-6b9c18c78680",
-        "limit": 100000,
+        "limit": 1000000,
         "fields": "DESCRIPTION_RPA, Latitude, Longitude",
         "filters": json.dumps({
             "DESCRIPTION_REP": "Réel"
