@@ -176,8 +176,8 @@ def recuperer_descriptions_rpa_avec_coordonnees(lat_specifique, lon_specifique):
         "limit": 100000,
         "fields": "DESCRIPTION_RPA, Latitude, Longitude",
         "filters": json.dumps({
-            "DESCRIPTION_REP": "Réel",
-            "NOM_ARROND": "Ville-Marie"
+            "DESCRIPTION_REP": "Réel"
+            #"NOM_ARROND": "Ville-Marie"
         })
     }
     response_derniers = requests.get(url, params=params_derniers)
