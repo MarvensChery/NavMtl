@@ -159,17 +159,7 @@ def calculer_distance(lat1, lon1, lat2, lon2):
 
 def recuperer_descriptions_rpa_avec_coordonnees(lat_specifique, lon_specifique):
     url = "https://donnees.montreal.ca/api/3/action/datastore_search"
-    params_total = {
-        "resource_id": "7f1d4ae9-1a12-46d7-953e-6b9c18c78680",
-        "limit": 1,
-        "fields": "DESCRIPTION_RPA",
-        "filters": json.dumps({
-            "DESCRIPTION_REP": "Réel",
-            "NOM_ARROND": "Ville-Marie"
-        })
-    }
-    response_total = requests.get(url, params=params_total)
-    total_results = response_total.json().get('result', {}).get('total', 0)
+    
 
     params_derniers = {
         "resource_id": "7f1d4ae9-1a12-46d7-953e-6b9c18c78680",

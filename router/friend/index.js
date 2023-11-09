@@ -14,7 +14,7 @@ router.get("/", authMiddleware, async (request, response) => {
         const friends = await db("friendship as fs")
             .join("friend as f", "fs.friendID", "f.friendID")
             .where("fs.userID", request.user.userID)
-            .select("f.nom as ami_nom", "f.prenom as ami_prenom", "f.lat", "f.long");
+            .select("f.nom as ami_nom", "f.prenom as ami_prenom", "f.lat", "f.long","f.friendID");
 
         if (!friends || friends.length === 0) {
             return response.status(404).json({ message: "Pas d'amis trouvés." });
@@ -79,7 +79,7 @@ router.get("/demandes-en-attente", authMiddleware, async (request, response) => 
             .join("utilisateur as u", "da.expediteurID", "u.userID")
             .where("da.destinataireID", destinataireID)
             .andWhere("da.etat", "en attente")
-            .select("u.nom", "u.prenom");
+            .select("u.nom", "u.prenom","u.userID","da.expediteurID","da.demandeID","da.destinataireID");
 
         return response.status(200).json(demandesEnAttente);
     } catch (e) {
@@ -140,9 +140,7 @@ router.post("/accepter-demande-ami/:demandeID", authMiddleware, async (request, 
         // Démarrer une transaction pour assurer la cohérence entre les opérations
         await db.transaction(async (trx) => {
             // Mettre à jour l'état de la demande d'ami à "acceptée"
-            await trx("demandeAmis")
-                .where("demandeID", demandeID)
-                .update({ etat: "acceptée" });
+            
 
             // Supprimer la demande d'ami une fois qu'elle est acceptée
              await db("demandeAmis")
