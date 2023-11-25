@@ -6,7 +6,8 @@
 
 - Linkedin: [@marvenschery](https://www.linkedin.com/in/marvenschery/)
 - Github: [@MarvensChery](https://github.com/MarvensChery) , [@christrang](https://github.com/christrang)
-### En cas de question, n'hésitez pas à me contacter❤️.
+### En cas de question, n'hésitez pas à me contacter.
+![ezgif com-video-to-gif](https://github.com/MarvensChery/NavMtl-Backend/assets/104527699/8a02cd79-7363-4aca-bad8-609432711d8b)
 
 ## Installation
 
