@@ -10,7 +10,7 @@ import sys
 # Récupérez les arguments de la ligne de commande
 lat = float(sys.argv[1])
 long = float(sys.argv[2])
-
+radius = float(sys.argv[3])
 locale.setlocale(locale.LC_TIME, 'fr_FR.UTF-8')
 nlp = spacy.load('fr_core_news_sm')
 
@@ -157,7 +157,7 @@ def calculer_distance(lat1, lon1, lat2, lon2):
     
     return distance
 
-def recuperer_descriptions_rpa_avec_coordonnees(lat_specifique, lon_specifique):
+def recuperer_descriptions_rpa_avec_coordonnees(lat_specifique, lon_specifique,rayon):
     url = "https://donnees.montreal.ca/api/3/action/datastore_search"
     
 
@@ -182,7 +182,7 @@ def recuperer_descriptions_rpa_avec_coordonnees(lat_specifique, lon_specifique):
             lon_panneau = float(record.get('Longitude'))
             distance = calculer_distance(lat_specifique, lon_specifique, lat_panneau, lon_panneau)
 
-            if distance <= 1000:
+            if distance <= rayon:
                 description_rpa = record.get('DESCRIPTION_RPA')
                 resultat_verif = verifier_panneau(description_rpa)  # Vérifier le panneau
 
@@ -199,4 +199,4 @@ def recuperer_descriptions_rpa_avec_coordonnees(lat_specifique, lon_specifique):
         print(descriptions_coordonnees)
 
 # Testez la fonction avec les coordonnées spécifiques
-recuperer_descriptions_rpa_avec_coordonnees(lat, long)
+recuperer_descriptions_rpa_avec_coordonnees(lat, long,radius)

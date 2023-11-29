@@ -5,9 +5,9 @@ const pythonFilePath = path.join(__dirname, "panneau", "panneau.py");
 console.log(pythonFilePath); // This will print the full path.
 
 
-function runPanneauScript(lat, long) {
+function runPanneauScript(lat, long, radius) {
   return new Promise((resolve, reject) => {
-      const pythonProcess = spawn("python", ["router/panneau/panneau.py", lat, long]);
+      const pythonProcess = spawn("python", ["router/panneau/panneau.py", lat, long, radius]);
       let dataString = "";
 
       pythonProcess.stdout.on("data", (data) => {
@@ -60,14 +60,14 @@ router.use("/alerte",authMiddleware, alerte);
 router.use("/friend",authMiddleware, friend);
 
 router.get("/panneau/run", async (req, res) => {
-  const { lat, long } = req.query;
+  const { lat, long, radius } = req.query;
 
-  if (!lat || !long) {
-      return res.status(400).send("Latitude and longitude are required");
-  }
+  if (!lat || !long || !radius) {
+    return res.status(400).send("Latitude, longitude, and radius are required");
+}
 
   try {
-      const result = await runPanneauScript(lat, long);
+      const result = await runPanneauScript(lat, long, radius);
       res.send(result);
   } catch (error) {
       res.status(500).send(error);
